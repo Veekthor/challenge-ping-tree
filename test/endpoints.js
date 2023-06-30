@@ -57,43 +57,49 @@ test.serial.cb('should prevent adding new target if duplicate', function (t) {
   }
 })
 
-test.serial.cb('should prevent adding new target if required fields are missing', function (t) {
-  redis.FLUSHDB()
-  var url = '/api/targets'
-  var opt = { method: 'POST', encoding: 'json' }
-  var newTarget = getTestTarget()
+test.serial.cb(
+  'should prevent adding new target if required fields are missing',
+  function (t) {
+    redis.FLUSHDB()
+    var url = '/api/targets'
+    var opt = { method: 'POST', encoding: 'json' }
+    var newTarget = getTestTarget()
 
-  delete newTarget.id
+    delete newTarget.id
 
-  servertest(server(), url, opt, onResponse).end(JSON.stringify(newTarget))
+    servertest(server(), url, opt, onResponse).end(JSON.stringify(newTarget))
 
-  function onResponse (err, res) {
-    t.falsy(err, 'no error')
+    function onResponse (err, res) {
+      t.falsy(err, 'no error')
 
-    t.is(res.statusCode, 400, 'correct statusCode')
-    t.is(res.body.error, 'Fields are required', 'status is ok')
-    t.end()
+      t.is(res.statusCode, 400, 'correct statusCode')
+      t.is(res.body.error, 'Fields are required', 'status is ok')
+      t.end()
+    }
   }
-})
+)
 
-test.serial.cb('should prevent adding new target if field has wrong type', function (t) {
-  redis.FLUSHDB()
-  var url = '/api/targets'
-  var opt = { method: 'POST', encoding: 'json' }
-  var newTarget = getTestTarget()
+test.serial.cb(
+  'should prevent adding new target if field has wrong type',
+  function (t) {
+    redis.FLUSHDB()
+    var url = '/api/targets'
+    var opt = { method: 'POST', encoding: 'json' }
+    var newTarget = getTestTarget()
 
-  newTarget.accept.geoState = 'ca'
+    newTarget.accept.geoState = 'ca'
 
-  servertest(server(), url, opt, onResponse).end(JSON.stringify(newTarget))
+    servertest(server(), url, opt, onResponse).end(JSON.stringify(newTarget))
 
-  function onResponse (err, res) {
-    t.falsy(err, 'no error')
+    function onResponse (err, res) {
+      t.falsy(err, 'no error')
 
-    t.is(res.statusCode, 400, 'correct statusCode')
-    t.is(res.body.error, 'hour and geoState must be arrays', 'status is ok')
-    t.end()
+      t.is(res.statusCode, 400, 'correct statusCode')
+      t.is(res.body.error, 'hour and geoState must be arrays', 'status is ok')
+      t.end()
+    }
   }
-})
+)
 
 test.serial.cb('should get all targets', function (t) {
   redis.FLUSHDB()
@@ -222,7 +228,8 @@ test.serial.cb('should not update target if body is empty', function (t) {
   }
 })
 
-test.serial.cb('should fail updating target by id when geoState is invalid',
+test.serial.cb(
+  'should fail updating target by id when geoState is invalid',
   function (t) {
     redis.FLUSHDB()
     var url = '/api/target/1'
@@ -249,7 +256,8 @@ test.serial.cb('should fail updating target by id when geoState is invalid',
 
       t.end()
     }
-  })
+  }
+)
 
 test.serial.cb('should fail update if id does not exist', function (t) {
   redis.FLUSHDB()
@@ -295,7 +303,8 @@ test.serial.cb('should get target url in decision', function (t) {
   }
 })
 
-test.serial.cb('should reject visitor if no target accepts its state',
+test.serial.cb(
+  'should reject visitor if no target accepts its state',
   function (t) {
     redis.FLUSHDB()
     var url = '/route'
@@ -314,29 +323,34 @@ test.serial.cb('should reject visitor if no target accepts its state',
       t.is(res.body.decision, 'reject', 'target rejected')
       t.end()
     }
-  })
-
-test.serial.cb('should reject visitor is no target accepts timestamp', function (t) {
-  redis.FLUSHDB()
-  var url = '/route'
-  var opt = { method: 'POST', encoding: 'json' }
-  var visitor = getTestVisitor({ timestamp: '2018-07-19T23:28:59.513Z' })
-  var dummyTarget = getTestTarget()
-
-  seedRedis([dummyTarget])
-
-  servertest(server(), url, opt, onResponse).end(JSON.stringify(visitor))
-
-  function onResponse (err, res) {
-    t.falsy(err, 'no error')
-
-    t.is(res.statusCode, 200, 'correct statusCode')
-    t.is(res.body.decision, 'reject', 'target rejected')
-    t.end()
   }
-})
+)
 
-test.serial.cb('should reject visitor all targets are past maxAcceptsPerDay',
+test.serial.cb(
+  'should reject visitor is no target accepts timestamp',
+  function (t) {
+    redis.FLUSHDB()
+    var url = '/route'
+    var opt = { method: 'POST', encoding: 'json' }
+    var visitor = getTestVisitor({ timestamp: '2018-07-19T23:28:59.513Z' })
+    var dummyTarget = getTestTarget()
+
+    seedRedis([dummyTarget])
+
+    servertest(server(), url, opt, onResponse).end(JSON.stringify(visitor))
+
+    function onResponse (err, res) {
+      t.falsy(err, 'no error')
+
+      t.is(res.statusCode, 200, 'correct statusCode')
+      t.is(res.body.decision, 'reject', 'target rejected')
+      t.end()
+    }
+  }
+)
+
+test.serial.cb(
+  'should reject visitor all targets are past maxAcceptsPerDay',
   function (t) {
     redis.FLUSHDB()
     var url = '/route'
@@ -355,9 +369,11 @@ test.serial.cb('should reject visitor all targets are past maxAcceptsPerDay',
       t.is(res.body.decision, 'reject', 'target rejected')
       t.end()
     }
-  })
+  }
+)
 
-test.serial.cb('should fail visitor decision if required visitor field is missing',
+test.serial.cb(
+  'should fail visitor decision if required visitor field is missing',
   function (t) {
     redis.FLUSHDB()
     var url = '/route'
@@ -375,12 +391,18 @@ test.serial.cb('should fail visitor decision if required visitor field is missin
       t.falsy(err, 'no error')
 
       t.is(res.statusCode, 400, 'correct statusCode')
-      t.is(res.body.error, 'geoState and timestamp are required', 'status is ok')
+      t.is(
+        res.body.error,
+        'geoState and timestamp are required',
+        'status is ok'
+      )
       t.end()
     }
-  })
+  }
+)
 
-test.serial.cb('should fail visitor decision if geoState is invalid',
+test.serial.cb(
+  'should fail visitor decision if geoState is invalid',
   function (t) {
     redis.FLUSHDB()
     var url = '/route'
@@ -397,13 +419,17 @@ test.serial.cb('should fail visitor decision if geoState is invalid',
 
       t.is(res.statusCode, 400, 'correct statusCode')
       t.is(
-        res.body.error, 'geoState must be a 2 character string', 'status is ok'
+        res.body.error,
+        'geoState must be a 2 character string',
+        'status is ok'
       )
       t.end()
     }
-  })
+  }
+)
 
-test.serial.cb('should fail visitor decision if timestamp is invalid',
+test.serial.cb(
+  'should fail visitor decision if timestamp is invalid',
   function (t) {
     redis.FLUSHDB()
     var url = '/route'
@@ -422,7 +448,8 @@ test.serial.cb('should fail visitor decision if timestamp is invalid',
       t.is(res.body.error, 'timestamp must be a valid date', 'status is ok')
       t.end()
     }
-  })
+  }
+)
 
 function getTestTarget (override) {
   return {
